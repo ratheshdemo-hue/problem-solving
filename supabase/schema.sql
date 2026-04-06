@@ -17,8 +17,20 @@ create table if not exists public.submissions (
   student_id uuid not null references public.students(id) on delete cascade,
   problem_id uuid not null references public.problems(id) on delete cascade,
   answer text not null,
+  score int,
+  feedback text,
+  evaluation_source text not null default 'mock',
   created_at timestamptz not null default now()
 );
+
+alter table if exists public.submissions
+  add column if not exists score int;
+
+alter table if exists public.submissions
+  add column if not exists feedback text;
+
+alter table if exists public.submissions
+  add column if not exists evaluation_source text not null default 'mock';
 
 create index if not exists submissions_created_at_idx
   on public.submissions (created_at desc);

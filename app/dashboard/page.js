@@ -112,10 +112,12 @@ export default function DashboardPage() {
           </div>
 
           <div className="mt-6 overflow-hidden rounded-3xl border border-slate-200">
-            <div className="grid grid-cols-[0.8fr_1.2fr_1.5fr] gap-4 bg-slate-100 px-5 py-4 text-sm font-medium text-slate-600">
+            <div className="grid grid-cols-[0.8fr_1.1fr_1.2fr_0.5fr_1.4fr] gap-4 bg-slate-100 px-5 py-4 text-sm font-medium text-slate-600">
               <span>Student</span>
               <span>Problem</span>
               <span>Answer preview</span>
+              <span>Score</span>
+              <span>Feedback</span>
             </div>
 
             {dashboardData.submissions.length ? (
@@ -123,11 +125,20 @@ export default function DashboardPage() {
                 {dashboardData.submissions.map((submission) => (
                   <div
                     key={submission.id}
-                    className="grid grid-cols-[0.8fr_1.2fr_1.5fr] gap-4 px-5 py-4 text-sm text-slate-700"
+                    className="grid grid-cols-[0.8fr_1.1fr_1.2fr_0.5fr_1.4fr] gap-4 px-5 py-4 text-sm text-slate-700"
                   >
                     <span className="font-medium">{submission.studentName}</span>
                     <span>{submission.problemTitle}</span>
                     <span>{submission.answerPreview}</span>
+                    <span className="font-semibold">
+                      {submission.score ? `${submission.score}/10` : "-"}
+                    </span>
+                    <span>
+                      {submission.feedback}
+                      <span className="ml-2 rounded-full bg-slate-100 px-2 py-1 text-xs uppercase tracking-wide text-slate-500">
+                        {submission.evaluationSource}
+                      </span>
+                    </span>
                   </div>
                 ))}
               </div>

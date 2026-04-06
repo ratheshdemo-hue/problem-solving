@@ -19,6 +19,9 @@ export async function GET() {
             `
               id,
               answer,
+              score,
+              feedback,
+              evaluation_source,
               created_at,
               students (
                 name
@@ -45,6 +48,9 @@ export async function GET() {
       studentName: maskStudentName(item.students?.name),
       problemTitle: item.problems?.title || "Untitled Problem",
       answerPreview: previewAnswer(item.answer),
+      score: item.score ?? null,
+      feedback: item.feedback || "No feedback yet.",
+      evaluationSource: item.evaluation_source || "mock",
       createdAt: item.created_at,
     }));
 
