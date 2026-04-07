@@ -15,15 +15,19 @@ export async function POST(request) {
     }
 
     const supabase = createSupabaseAdmin();
-    const { error } = await supabase.from("submissions").insert([
-      {
-        student_id: studentId,
-        problem_id: problemId,
-        answer: trimmedAnswer,
-        evaluation_source: "pending",
-        evaluation_status: "pending",
-      },
-    ]);
+    const { data: submission, error } = await supabase
+      .from("submissions")
+      .insert([
+        {
+          student_id: studentId,
+          problem_id: problemId,
+          answer: trimmedAnswer,
+          evaluation_source: "pending",
+          evaluation_status: "pending",
+        },
+      ])
+      .select("id, score, feedback, evaluation_source, evaluation_status")
+      .single();
 
     if (error) {
       throw error;
@@ -39,9 +43,13 @@ export async function POST(request) {
 
     return NextResponse.json({
       message: "Solution submitted successfully.",
+      submissionId: submission.id,
       evaluation: {
-        source: "pending",
-        feedback: "AI evaluation queued. Results will appear shortly.",
+        score: submission.score,
+        source: submission.evaluation_source,
+        status: submission.evaluation_status,
+        feedback:
+          submission.feedback || "AI evaluation queued. Results will appear shortly.",
       },
     });
   } catch (error) {

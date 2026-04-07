@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const initialStudent = {
   name: "",
@@ -18,6 +18,41 @@ export default function StudentPage() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [submissionResult, setSubmissionResult] = useState(null);
+
+  useEffect(() => {
+    if (!submissionResult?.id || submissionResult.status !== "pending") {
+      return;
+    }
+
+    const timeoutId = setTimeout(async () => {
+      try {
+        const response = await fetch(`/api/submissions/${submissionResult.id}`, {
+          cache: "no-store",
+        });
+        const result = await response.json();
+
+        if (!response.ok) {
+          throw new Error(result.error || "Failed to refresh evaluation.");
+        }
+
+        setSubmissionResult(result);
+      } catch {
+        setSubmissionResult((current) =>
+          current
+            ? {
+                ...current,
+                feedback:
+                  current.feedback ||
+                  "Evaluation is still processing. Please wait a moment.",
+              }
+            : current
+        );
+      }
+    }, 2500);
+
+    return () => clearTimeout(timeoutId);
+  }, [submissionResult]);
 
   function updateField(event) {
     const { name, value } = event.target;
@@ -31,6 +66,7 @@ export default function StudentPage() {
     event.preventDefault();
     setError("");
     setSuccess("");
+    setSubmissionResult(null);
     setLoadingProblem(true);
 
     try {
@@ -51,6 +87,7 @@ export default function StudentPage() {
       setStudent(result.student);
       setProblem(result.problem);
       setAnswer("");
+      setSubmissionResult(null);
     } catch (assignError) {
       setError(assignError.message);
     } finally {
@@ -84,6 +121,13 @@ export default function StudentPage() {
       }
 
       setSuccess("Your solution is in. Thanks for participating.");
+      setSubmissionResult({
+        id: result.submissionId,
+        score: result.evaluation?.score ?? null,
+        feedback: result.evaluation?.feedback || "",
+        source: result.evaluation?.source || "pending",
+        status: result.evaluation?.status || "pending",
+      });
       setAnswer("");
     } catch (submissionError) {
       setError(submissionError.message);
@@ -99,6 +143,7 @@ export default function StudentPage() {
     setError("");
     setSuccess("");
     setStudentForm(initialStudent);
+    setSubmissionResult(null);
   }
 
   return (
@@ -247,6 +292,41 @@ export default function StudentPage() {
                   {submitting ? "Submitting..." : "Submit Solution"}
                 </button>
               </form>
+
+              {submissionResult ? (
+                <div className="mt-6 rounded-3xl border border-cyan-200 bg-cyan-50 p-6">
+                  <div className="flex items-center justify-between gap-4">
+                    <div>
+                      <p className="text-sm font-medium text-cyan-700">
+                        Evaluation Result
+                      </p>
+                      <p className="mt-1 text-sm text-cyan-900">
+                        {submissionResult.status === "pending"
+                          ? "Your answer is queued for AI evaluation."
+                          : "Your answer has been evaluated."}
+                      </p>
+                    </div>
+                    <span className="rounded-full bg-white px-3 py-1 text-sm font-semibold text-cyan-800">
+                      {submissionResult.status === "pending"
+                        ? "Queued"
+                        : submissionResult.score
+                          ? `${submissionResult.score}/10`
+                          : "-"}
+                    </span>
+                  </div>
+
+                  <div className="mt-4 rounded-2xl bg-white p-4 text-sm leading-6 text-slate-700">
+                    {submissionResult.feedback}
+                  </div>
+
+                  <p className="mt-3 text-xs uppercase tracking-wide text-slate-500">
+                    Source:{" "}
+                    {submissionResult.status === "pending"
+                      ? "queued"
+                      : submissionResult.source}
+                  </p>
+                </div>
+              ) : null}
             </div>
           )}
         </section>
