@@ -9,7 +9,7 @@ ScanSolve is a simple full-stack real-time workshop app built with Next.js App R
 - QR code generation using `qrcode`
 - Random problem assignment for students
 - Student answer submission
-- AI score and short feedback after submission
+- Background AI score and short feedback after submission
 - Live dashboard with masked student names
 - Real-time updates using Supabase subscriptions
 
@@ -44,8 +44,10 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
-OPENAI_API_KEY=your-openai-key
-OPENAI_MODEL=gpt-4.1-mini
+AZURE_OPENAI_ENDPOINT=https://tech-mnoei7r2-swedencentral.cognitiveservices.azure.com/
+AZURE_OPENAI_DEPLOYMENT=gpt-4o
+AZURE_OPENAI_API_VERSION=2024-10-21
+AZURE_OPENAI_API_KEY=your-azure-openai-key
 ```
 
 ## Supabase Setup
@@ -54,7 +56,7 @@ OPENAI_MODEL=gpt-4.1-mini
 2. Open the SQL editor.
 3. Run the SQL from `supabase/schema.sql`.
 4. Copy your project URL, anon key, and service role key into `.env.local`.
-5. Optionally add `OPENAI_API_KEY` for live AI evaluation. If it is missing, the app uses a mock evaluator.
+5. Optionally add Azure OpenAI environment variables for live AI evaluation. If `AZURE_OPENAI_API_KEY` is missing, the app uses a mock evaluator.
 
 ## Excel Format
 
@@ -102,4 +104,6 @@ npm run dev
 - The dashboard masks student names as `F***`.
 - The dashboard only shows a 50-character answer preview.
 - The dashboard now shows AI score and feedback for each submission.
+- AI evaluation runs in the background, one queued submission at a time.
+- If Azure OpenAI is unavailable or any evaluation step fails, the app falls back to mock scoring.
 - Server routes use the Supabase service role key, so keep it private.

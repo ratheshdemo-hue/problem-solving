@@ -27,7 +27,9 @@ create table if not exists public.submissions (
   answer text not null,
   score int,
   feedback text,
-  evaluation_source text not null default 'mock',
+  evaluation_source text not null default 'pending',
+  evaluation_status text not null default 'pending',
+  evaluated_at timestamptz,
   created_at timestamptz not null default now()
 );
 
@@ -38,7 +40,23 @@ alter table if exists public.submissions
   add column if not exists feedback text;
 
 alter table if exists public.submissions
-  add column if not exists evaluation_source text not null default 'mock';
+  add column if not exists evaluation_source text not null default 'pending';
+
+alter table if exists public.submissions
+  add column if not exists evaluation_status text not null default 'pending';
+
+alter table if exists public.submissions
+  add column if not exists evaluated_at timestamptz;
+
+create table if not exists public.evaluation_queue_state (
+  id int primary key,
+  is_processing boolean not null default false,
+  updated_at timestamptz not null default now()
+);
+
+insert into public.evaluation_queue_state (id, is_processing)
+values (1, false)
+on conflict (id) do nothing;
 
 create index if not exists submissions_created_at_idx
   on public.submissions (created_at desc);

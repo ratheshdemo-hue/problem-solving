@@ -131,12 +131,18 @@ export default function DashboardPage() {
                     <span>{submission.problemTitle}</span>
                     <span>{submission.answerPreview}</span>
                     <span className="font-semibold">
-                      {submission.score ? `${submission.score}/10` : "-"}
+                      {submission.evaluationStatus === "pending"
+                        ? "..."
+                        : submission.score
+                          ? `${submission.score}/10`
+                          : "-"}
                     </span>
                     <span>
                       {submission.feedback}
                       <span className="ml-2 rounded-full bg-slate-100 px-2 py-1 text-xs uppercase tracking-wide text-slate-500">
-                        {submission.evaluationSource}
+                        {submission.evaluationStatus === "pending"
+                          ? "queued"
+                          : submission.evaluationSource}
                       </span>
                     </span>
                   </div>

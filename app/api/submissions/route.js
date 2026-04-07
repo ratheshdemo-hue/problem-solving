@@ -1,6 +1,6 @@
-import { NextResponse } from "next/server";
+import { after, NextResponse } from "next/server";
 import { createSupabaseAdmin } from "@/lib/supabase/admin";
-import { evaluateAnswer } from "@/lib/answer-evaluator";
+import { processEvaluationQueue } from "@/lib/evaluation-queue";
 
 export async function POST(request) {
   try {
@@ -15,30 +15,13 @@ export async function POST(request) {
     }
 
     const supabase = createSupabaseAdmin();
-    const { data: problem, error: problemError } = await supabase
-      .from("problems")
-      .select("title, description")
-      .eq("id", problemId)
-      .single();
-
-    if (problemError) {
-      throw problemError;
-    }
-
-    const evaluation = await evaluateAnswer({
-      answer: trimmedAnswer,
-      problemTitle: problem.title,
-      problemDescription: problem.description,
-    });
-
     const { error } = await supabase.from("submissions").insert([
       {
         student_id: studentId,
         problem_id: problemId,
         answer: trimmedAnswer,
-        score: evaluation.score,
-        feedback: evaluation.feedback,
-        evaluation_source: evaluation.source,
+        evaluation_source: "pending",
+        evaluation_status: "pending",
       },
     ]);
 
@@ -46,9 +29,20 @@ export async function POST(request) {
       throw error;
     }
 
+    after(async () => {
+      try {
+        await processEvaluationQueue();
+      } catch {
+        // If the queue processor crashes, later submissions will trigger it again.
+      }
+    });
+
     return NextResponse.json({
       message: "Solution submitted successfully.",
-      evaluation,
+      evaluation: {
+        source: "pending",
+        feedback: "AI evaluation queued. Results will appear shortly.",
+      },
     });
   } catch (error) {
     return NextResponse.json(
