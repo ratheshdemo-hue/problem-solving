@@ -9,8 +9,16 @@ create table if not exists public.problems (
 create table if not exists public.students (
   id uuid primary key default gen_random_uuid(),
   name text not null,
-  email text not null unique
+  email text not null unique,
+  phone_number text,
+  studying_year text
 );
+
+alter table if exists public.students
+  add column if not exists phone_number text;
+
+alter table if exists public.students
+  add column if not exists studying_year text;
 
 create table if not exists public.submissions (
   id uuid primary key default gen_random_uuid(),

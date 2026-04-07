@@ -92,7 +92,7 @@ npm run dev
 2. Upload the Excel file with problem statements.
 3. Display the generated QR code.
 4. Students scan the QR and open `/student`.
-5. Students enter their name and email.
+5. Students enter their name, email, phone number, and studying year.
 6. The app assigns a random problem.
 7. Students submit their solution.
 8. Watch `/dashboard` update in real time.

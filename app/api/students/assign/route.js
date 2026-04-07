@@ -3,13 +3,20 @@ import { createSupabaseAdmin } from "@/lib/supabase/admin";
 
 export async function POST(request) {
   try {
-    const { name, email } = await request.json();
+    const { name, email, phoneNumber, studyingYear } = await request.json();
     const trimmedName = String(name || "").trim();
     const trimmedEmail = String(email || "").trim().toLowerCase();
+    const trimmedPhoneNumber = String(phoneNumber || "").trim();
+    const trimmedStudyingYear = String(studyingYear || "").trim();
 
-    if (!trimmedName || !trimmedEmail) {
+    if (
+      !trimmedName ||
+      !trimmedEmail ||
+      !trimmedPhoneNumber ||
+      !trimmedStudyingYear
+    ) {
       return NextResponse.json(
-        { error: "Name and email are required." },
+        { error: "Name, email, phone number, and studying year are required." },
         { status: 400 }
       );
     }
@@ -18,10 +25,20 @@ export async function POST(request) {
 
     const { data: student, error: studentError } = await supabase
       .from("students")
-      .upsert([{ name: trimmedName, email: trimmedEmail }], {
+      .upsert(
+        [
+          {
+            name: trimmedName,
+            email: trimmedEmail,
+            phone_number: trimmedPhoneNumber,
+            studying_year: trimmedStudyingYear,
+          },
+        ],
+        {
         onConflict: "email",
-      })
-      .select("id, name, email")
+        }
+      )
+      .select("id, name, email, phone_number, studying_year")
       .single();
 
     if (studentError) {

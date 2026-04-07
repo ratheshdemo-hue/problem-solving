@@ -5,6 +5,8 @@ import { useState } from "react";
 const initialStudent = {
   name: "",
   email: "",
+  phoneNumber: "",
+  studyingYear: "",
 };
 
 export default function StudentPage() {
@@ -106,8 +108,8 @@ export default function StudentPage() {
           <p className="text-sm text-cyan-200">Student Portal</p>
           <h1 className="mt-3 text-4xl font-semibold">Scan. Solve. Submit.</h1>
           <p className="mt-4 text-sm leading-6 text-slate-300">
-            Enter your name and email to receive a random problem from the
-            workshop set.
+            Enter your details to receive a random problem from the workshop
+            set.
           </p>
 
           <form onSubmit={handleAssignProblem} className="mt-8 space-y-4">
@@ -135,6 +137,41 @@ export default function StudentPage() {
                 className="w-full rounded-2xl border border-white/10 bg-slate-900 px-4 py-3 outline-none ring-0 placeholder:text-slate-500 focus:border-cyan-300"
                 required
               />
+            </div>
+
+            <div>
+              <label className="mb-2 block text-sm font-medium">
+                Phone Number
+              </label>
+              <input
+                type="tel"
+                name="phoneNumber"
+                value={studentForm.phoneNumber}
+                onChange={updateField}
+                placeholder="+91 9876543210"
+                className="w-full rounded-2xl border border-white/10 bg-slate-900 px-4 py-3 outline-none ring-0 placeholder:text-slate-500 focus:border-cyan-300"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="mb-2 block text-sm font-medium">
+                Studying Year
+              </label>
+              <select
+                name="studyingYear"
+                value={studentForm.studyingYear}
+                onChange={updateField}
+                className="w-full rounded-2xl border border-white/10 bg-slate-900 px-4 py-3 outline-none ring-0 focus:border-cyan-300"
+                required
+              >
+                <option value="">Select your year</option>
+                <option value="1st Year">1st Year</option>
+                <option value="2nd Year">2nd Year</option>
+                <option value="3rd Year">3rd Year</option>
+                <option value="4th Year">4th Year</option>
+                <option value="Other">Other</option>
+              </select>
             </div>
 
             <button
